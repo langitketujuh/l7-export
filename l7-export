@@ -4,7 +4,7 @@ TITLE="LangitKetujuh Export"
 NAME=$(basename "$0")
 INSTALLDIR=$(which basename)
 INKSCAPEDIR=$(which inkscape)
-VERSION="1.16.16"
+VERSION="1.16.17"
 WEB="https://langitketujuh.id"
 LICENSE="GPL-3.0-or-later"
 
@@ -536,6 +536,14 @@ do
                 fi
             fi
             echo -e ""
+            if [ "$MARKET" -eq 7 ]; then
+                read -e -p "Optimized SVG (y/N): " OPTIMIZED
+                if [[ $OPTIMIZED =~ ^[Yy]$ ]]; then
+                    SVG_OPTIM="1"
+                else
+                    SVG_OPTIM="0"
+                fi
+            fi
             read -e -p "Folder Output: " -i "$MARKETNAME" DIRECTORY
             echo -e ""
             if [ -z "$DIRECTORY" ]; then
@@ -566,7 +574,7 @@ do
                     --export-ignore-filters \
                     --export-filename="$DIRECTORY/$CACHE/$id_mp/$id_mp.eps" \
                     $SOURCE >/dev/null 2>&1
-                    # 5
+                    # 6
                     elif [ "$MARKET" -eq 6 ]; then
                     inkscape \
                     --export-id="$id_mp" \
@@ -576,7 +584,7 @@ do
                     --export-ignore-filters \
                     --export-filename="$DIRECTORY/$CACHE/$id_mp.eps" \
                     $SOURCE >/dev/null 2>&1
-                    # 6
+                    # 7
                     elif [ "$MARKET" -eq 7 ]; then
                     inkscape \
                     --export-id="$id_mp" \
@@ -587,7 +595,18 @@ do
                     $SOURCE >/dev/null 2>&1
                 fi
             done
-            
+
+            # optimized svg
+            if [ "$SVG_OPTIM" = 1 ]; then
+                mkdir -p "$DIRECTORY/$CACHE/optim"
+                for f in $(ls $DIRECTORY/$CACHE/); do
+                    scour -q -i $DIRECTORY/$CACHE/${f} -o $DIRECTORY/$CACHE/optim/${f} >/dev/null 2>&1
+                done
+                mv -f $DIRECTORY/$CACHE/optim/*.svg $DIRECTORY/$CACHE/ >/dev/null 2>&1
+            else
+                echo >/dev/null
+            fi
+
             # export jpg image preview
             cd "$DIRECTORY"/$CACHE
             if [ "$MARKET" -ge 2 ] && [ "$MARKET" -le 3 ]; then
@@ -661,8 +680,7 @@ do
                 do mv  $i .. >/dev/null 2>&1
                 done
             fi
-            cd .. && rm -r $CACHE
-            cd ..
+            cd ../.. && rm -r "$DIRECTORY"/$CACHE
             rm_optimized_svg
             finish
             break
@@ -723,8 +741,7 @@ do
             for i in *.png;
             do mv "$i" "../${i%.*}-$DEPTH-bit-$DPI-dpi.png"
             done
-            cd .. && rm -r $CACHE
-            cd ..
+            cd ../.. && rm -r "$DIRECTORY"/$CACHE
             rm_optimized_svg
             finish
             break
@@ -867,8 +884,7 @@ do
             else
                 echo -e "\033[1;91m[FAILED]\033[0m Color Profile is not support."
             fi
-            cd .. && rm -r $CACHE
-            cd ..
+            cd ../.. && rm -r "$DIRECTORY"/$CACHE
             rm_optimized_svg
             finish
             break
@@ -1027,8 +1043,7 @@ do
             else
                 echo -e "\033[1;91m[FAILED]\033[0m Color Profile is not support."
             fi
-            cd .. && rm -r $CACHE
-            cd ..
+            cd ../.. && rm -r "$DIRECTORY"/$CACHE
             rm_optimized_svg
             finish
             break
@@ -1355,8 +1370,7 @@ do
                 echo -e "\033[1;91m[FAILED]\033[0m Can not convert."
                 exit
             fi
-            cd .. && rm -r $CACHE
-            cd ..
+            cd ../.. && rm -r "$DIRECTORY"/$CACHE
             rm_optimized_svg
             finish
             break
@@ -1364,6 +1378,12 @@ do
         "Svg")
             echo -e "Export to: \033[1;36mSVG\033[0m"
             echo -e ""
+            read -e -p "Optimized SVG (y/N): " OPTIMIZED
+            if [[ $OPTIMIZED =~ ^[Yy]$ ]]; then
+                SVG_OPTIM="1"
+            else
+                SVG_OPTIM="0"
+            fi
             read -e -p "Folder Output: " -i "Svg" DIRECTORY
             echo -e ""
             if [ -z "$DIRECTORY" ]; then
@@ -1372,12 +1392,19 @@ do
             fi
             loading
             mkdir -p "$DIRECTORY/$CACHE"
-            optimized_svg
             to_svg
-            cd "$DIRECTORY"/$CACHE
-            mv *.svg ..
-            cd .. && rm -r $CACHE
-            cd ..
+            # optimized svg
+            if [ "$SVG_OPTIM" = 1 ]; then
+                mkdir -p "$DIRECTORY/$CACHE/optim"
+                for f in $(ls $DIRECTORY/$CACHE/); do
+                    scour -q -i $DIRECTORY/$CACHE/${f} -o $DIRECTORY/$CACHE/optim/${f} >/dev/null 2>&1
+                done
+                mv -f $DIRECTORY/$CACHE/optim/*.svg $DIRECTORY/$CACHE/ >/dev/null 2>&1
+            else
+                echo >/dev/null 2>&1
+            fi
+            mv "$DIRECTORY"/$CACHE/*.svg "$DIRECTORY"
+            rm -r "$DIRECTORY"/$CACHE
             rm_optimized_svg
             finish
             break
@@ -1402,8 +1429,7 @@ do
             for i in *.eps;
             do mv "$i" "../${i%.*}-$PROFILENAME.eps"
             done
-            cd .. && rm -r $CACHE
-            cd ..
+            cd ../.. && rm -r "$DIRECTORY"/$CACHE
             rm_optimized_svg
             finish
             break
@@ -1452,8 +1478,7 @@ do
                     -sOutputFile="../${i%.*}-$PROFILENAME.ai" "$i"
                 done
             fi
-            cd .. && rm -r $CACHE
-            cd ..
+            cd ../.. && rm -r "$DIRECTORY"/$CACHE
             rm_optimized_svg
             finish
             break
@@ -1526,8 +1551,7 @@ do
                     -sOutputFile="../${i%.*}-$PROFILENAME-$DEPTH-bit.psd" "$i"
                 done
             fi
-            cd .. && rm -r $CACHE
-            cd ..
+            cd ../.. && rm -r "$DIRECTORY"/$CACHE
             rm_optimized_svg
             finish
             break
@@ -1574,8 +1598,7 @@ do
             for i in *.png; do
                 cwebp -quiet "$i" -o "../${i%.*}-$DPI-dpi.webp";
             done
-            cd .. && rm -r $CACHE
-            cd ..
+            cd ../.. && rm -r "$DIRECTORY"/$CACHE
             rm_optimized_svg
             finish
             break
