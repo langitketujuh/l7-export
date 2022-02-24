@@ -222,12 +222,12 @@ check_id() {
     if [ -z $IDPATTERN ]; then
         echo -e ""
         echo -e "\033[1;91m[FAILED]\033[0m The ID object is empty."
-        rm_optimized_svg; exit;
+        exit;
         # check wrong id
         elif [ -z "$(id)" ]; then
         echo -e ""
         echo -e "\033[1;91m[FAILED]\033[0m Similar ID object \033[0;36m$IDPATTERN\033[0m was not found."
-        rm_optimized_svg; exit;
+        exit;
     else
         echo >/dev/null 2>&1;
     fi
@@ -293,13 +293,10 @@ check_depedencies() {
     fi
 }
 
-# check first
-check_file
-check_id
-check_depedencies
-
 optimized_svg() {
-    scour -q -i $SOURCE -o $OPTIM_SOURCE >/dev/null 2>&1
+    scour -q --remove-descriptive-elements \
+    --enable-comment-stripping \
+    -i $SOURCE -o $OPTIM_SOURCE >/dev/null 2>&1
 }
 
 rm_optimized_svg() {
@@ -465,6 +462,11 @@ finish() {
     echo -e "\033[1;36m[FINISH]\033[0m Job done."
 }
 
+# check first
+check_file
+check_id
+check_depedencies
+
 PS3='Number: '
 options=("Market" "Png" "Jpg" "Tif" "Pdf" "Svg" "Eps" "Ai" "Psd" "Webp" "Cancel")
 clear
@@ -552,7 +554,6 @@ do
             fi
             loading
             mkdir -p "$DIRECTORY/$CACHE"
-            optimized_svg
             for id_mp in $(inkscape -S $SOURCE | grep $IDPATTERN | cut -d "," -f 1); do
                 # 1-4
                 if [ "$MARKET" -ge 1 ] && [ "$MARKET" -le 5 ]; then
@@ -600,7 +601,10 @@ do
             if [ "$SVG_OPTIM" = 1 ]; then
                 mkdir -p "$DIRECTORY/$CACHE/optim"
                 for f in $(ls $DIRECTORY/$CACHE/); do
-                    scour -q -i $DIRECTORY/$CACHE/${f} -o $DIRECTORY/$CACHE/optim/${f} >/dev/null 2>&1
+                    scour -q --remove-descriptive-elements \
+                    --enable-comment-stripping \
+                    -i $DIRECTORY/$CACHE/${f} \
+                    -o $DIRECTORY/$CACHE/optim/${f} >/dev/null 2>&1
                 done
                 mv -f $DIRECTORY/$CACHE/optim/*.svg $DIRECTORY/$CACHE/ >/dev/null 2>&1
             else
@@ -735,14 +739,12 @@ do
             fi
             loading
             mkdir -p "$DIRECTORY/$CACHE"
-            optimized_svg
             to_png
             cd "$DIRECTORY"/$CACHE
             for i in *.png;
             do mv "$i" "../${i%.*}-$DEPTH-bit-$DPI-dpi.png"
             done
             cd ../.. && rm -r "$DIRECTORY"/$CACHE
-            rm_optimized_svg
             finish
             break
         ;;
@@ -818,7 +820,6 @@ do
             fi
             loading
             mkdir -p "$DIRECTORY/$CACHE"
-            optimized_svg
             to_png
             cd "$DIRECTORY"/$CACHE
             if [ $ICC = 1 ]; then
@@ -885,7 +886,6 @@ do
                 echo -e "\033[1;91m[FAILED]\033[0m Color Profile is not support."
             fi
             cd ../.. && rm -r "$DIRECTORY"/$CACHE
-            rm_optimized_svg
             finish
             break
         ;;
@@ -977,7 +977,6 @@ do
             fi
             loading
             mkdir -p "$DIRECTORY/$CACHE"
-            optimized_svg
             to_png
             cd "$DIRECTORY"/$CACHE
             if [ $ICC = 1 ]; then
@@ -1044,7 +1043,6 @@ do
                 echo -e "\033[1;91m[FAILED]\033[0m Color Profile is not support."
             fi
             cd ../.. && rm -r "$DIRECTORY"/$CACHE
-            rm_optimized_svg
             finish
             break
         ;;
@@ -1134,7 +1132,6 @@ do
             echo -e ""
             loading
             mkdir -p "$DIRECTORY/$CACHE"
-            optimized_svg
             #convert vector
             if [ $output = 1 ]; then
                 to_svg
@@ -1371,7 +1368,6 @@ do
                 exit
             fi
             cd ../.. && rm -r "$DIRECTORY"/$CACHE
-            rm_optimized_svg
             finish
             break
         ;;
@@ -1393,7 +1389,6 @@ do
             loading
             mkdir -p "$DIRECTORY/$CACHE"
             to_svg
-            # optimized svg
             if [ "$SVG_OPTIM" = 1 ]; then
                 mkdir -p "$DIRECTORY/$CACHE/optim"
                 for f in $(ls $DIRECTORY/$CACHE/); do
@@ -1405,7 +1400,6 @@ do
             fi
             mv "$DIRECTORY"/$CACHE/*.svg "$DIRECTORY"
             rm -r "$DIRECTORY"/$CACHE
-            rm_optimized_svg
             finish
             break
         ;;
@@ -1422,7 +1416,6 @@ do
             fi
             loading
             mkdir -p "$DIRECTORY/$CACHE"
-            optimized_svg
             to_eps
             cd "$DIRECTORY"/$CACHE
             PROFILENAME="srgb"
@@ -1457,7 +1450,6 @@ do
             fi
             loading
             mkdir -p "$DIRECTORY/$CACHE"
-            optimized_svg
             to_pdf
             cd "$DIRECTORY"/$CACHE
             #srgb
@@ -1479,7 +1471,6 @@ do
                 done
             fi
             cd ../.. && rm -r "$DIRECTORY"/$CACHE
-            rm_optimized_svg
             finish
             break
         ;;
@@ -1522,7 +1513,6 @@ do
             fi
             loading
             mkdir -p "$DIRECTORY/$CACHE"
-            optimized_svg
             to_pdf
             cd "$DIRECTORY"/$CACHE
             #srgb
@@ -1552,7 +1542,6 @@ do
                 done
             fi
             cd ../.. && rm -r "$DIRECTORY"/$CACHE
-            rm_optimized_svg
             finish
             break
         ;;
@@ -1589,7 +1578,6 @@ do
             fi
             loading
             mkdir -p "$DIRECTORY/$CACHE"
-            optimized_svg
             for id in $(inkscape -S $SOURCE | grep $IDPATTERN | cut -d "," -f 1); do
                 inkscape -j -i $id -o "$DIRECTORY/$CACHE/$id.png" \
                 $SOURCE -d $DPI >/dev/null 2>&1
@@ -1599,14 +1587,13 @@ do
                 cwebp -quiet "$i" -o "../${i%.*}-$DPI-dpi.webp";
             done
             cd ../.. && rm -r "$DIRECTORY"/$CACHE
-            rm_optimized_svg
             finish
             break
         ;;
         "Cancel")
             clear
             echo -e "\033[1;33mEXIT!.\033[0m"
-            rm_optimized_svg; exit;
+            exit;
         ;;
         *) echo -e "\033[1;91m[FAILED]\033[0m" $REPLY. Try again.;;
     esac
