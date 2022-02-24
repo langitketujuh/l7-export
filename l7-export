@@ -4,7 +4,7 @@ TITLE="LangitKetujuh Export"
 NAME=$(basename "$0")
 INSTALLDIR=$(which basename)
 INKSCAPEDIR=$(which inkscape)
-VERSION="1.16.17"
+VERSION="1.16.18"
 WEB="https://langitketujuh.id"
 LICENSE="GPL-3.0-or-later"
 
@@ -453,7 +453,7 @@ to_pdf() {
         --export-text-to-path \
         --export-ignore-filters \
         --export-filename="$DIRECTORY/$CACHE/$ID_LIST.pdf" \
-        $_SOURCE >/dev/null 2>&1
+        $SOURCE >/dev/null 2>&1
     done
 }
 
