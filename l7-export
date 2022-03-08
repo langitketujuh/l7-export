@@ -724,21 +724,6 @@ do
                 echo -e "\033[1;91m[FAILED]\033[0m Folder output is empty."
                 exit
             fi
-            echo -e "Background:"
-            echo -e "  \033[1;33m[1]\033[0m White"
-            echo -e "  \033[1;33m[2]\033[0m Black"
-            read -e -p "Number: " -i "1" BGCOLOR
-            echo -e ""
-            if [ -z $BGCOLOR ]; then
-                echo -e "\033[1;91m[FAILED]\033[0m Background color is empty."
-                elif [ $BGCOLOR = 1 ]; then
-                BGCOLOR="white"
-                elif [ $BGCOLOR = 2 ]; then
-                BGCOLOR="black"
-            else
-                echo -e "\033[1;91m[FAILED]\033[0m "$BGCOLOR" is not support."
-                exit
-            fi
             loading
             mkdir -p "$DIRECTORY/$CACHE"
             to_png
@@ -752,7 +737,7 @@ do
                     -flatten \
                     -quality 100 \
                     -colorspace sRGB \
-                    -background $BGCOLOR \
+                    -background white \
                     -profile $COLORD_RGB \
                     "../${i%.*}-$PROFILENAME-$DPI-dpi.jpg";
                 done
@@ -764,7 +749,7 @@ do
                     -flatten \
                     -quality 100 \
                     -colorspace sRGB \
-                    -background $BGCOLOR \
+                    -background white \
                     -profile $GSCRIPT_RGB \
                     "../${i%.*}-$PROFILENAME-$DPI-dpi.jpg";
                 done
@@ -776,7 +761,7 @@ do
                     -flatten \
                     -quality 100 \
                     -colorspace sRGB \
-                    -background $BGCOLOR \
+                    -background white \
                     -profile $KRITA_RGB \
                     "../${i%.*}-$PROFILENAME-$DPI-dpi.jpg";
                 done
@@ -788,7 +773,7 @@ do
                     -flatten \
                     -quality 100 \
                     -colorspace sRGB \
-                    -background $BGCOLOR \
+                    -background white \
                     -profile $SCRIBUS_RGB \
                     "../${i%.*}-$PROFILENAME-$DPI-dpi.jpg";
                 done
@@ -801,7 +786,7 @@ do
                     -flatten \
                     -quality 100 \
                     -colorspace CMYK \
-                    -background $BGCOLOR \
+                    -background white \
                     -profile $GSCRIPT_CMYK \
                     "../${i%.*}-$PROFILENAME-$DPI-dpi.jpg";
                 done
@@ -813,7 +798,7 @@ do
                     -flatten \
                     -quality 100 \
                     -colorspace CMYK \
-                    -background $BGCOLOR \
+                    -background white \
                     -profile $KRITA_CMYK \
                     "../${i%.*}-$PROFILENAME-$DPI-dpi.jpg";
                 done
@@ -825,7 +810,7 @@ do
                     -flatten \
                     -quality 100 \
                     -colorspace CMYK \
-                    -background $BGCOLOR \
+                    -background white \
                     -profile $SCRIBUS_CMYK \
                     "../${i%.*}-$PROFILENAME-$DPI-dpi.jpg";
                 done
@@ -913,21 +898,6 @@ do
                 echo -e "\033[1;91m[FAILED]\033[0m Folder output is empty."
                 exit
             fi
-            echo -e "Background:"
-            echo -e "  \033[1;33m[1]\033[0m White"
-            echo -e "  \033[1;33m[2]\033[0m Black"
-            read -e -p "Number: " -i "1" BGCOLOR
-            echo -e ""
-            if [ -z $BGCOLOR ]; then
-                echo -e "\033[1;91m[FAILED]\033[0m Background color is empty."
-                elif [ $BGCOLOR = 1 ]; then
-                BGCOLOR="white"
-                elif [ $BGCOLOR = 2 ]; then
-                BGCOLOR="black"
-            else
-                echo -e "\033[1;91m[FAILED]\033[0m "$BGCOLOR" is not support."
-                exit
-            fi
             loading
             mkdir -p "$DIRECTORY/$CACHE"
             to_png
@@ -941,7 +911,7 @@ do
                     -flatten \
                     -quality 100 \
                     -colorspace sRGB \
-                    -background $BGCOLOR \
+                    -background white \
                     -profile $COLORD_RGB \
                     "../${i%.*}-$PROFILENAME-$DPI-dpi.tif";
                 done
@@ -953,7 +923,7 @@ do
                     -flatten \
                     -quality 100 \
                     -colorspace sRGB \
-                    -background $BGCOLOR \
+                    -background white \
                     -profile $GSCRIPT_RGB \
                     "../${i%.*}-$PROFILENAME-$DPI-dpi.tif";
                 done
@@ -965,7 +935,7 @@ do
                     -flatten \
                     -quality 100 \
                     -colorspace sRGB \
-                    -background $BGCOLOR \
+                    -background white \
                     -profile $KRITA_RGB \
                     "../${i%.*}-$PROFILENAME-$DPI-dpi.tif";
                 done
@@ -977,7 +947,7 @@ do
                     -flatten \
                     -quality 100 \
                     -colorspace sRGB \
-                    -background $BGCOLOR \
+                    -background white \
                     -profile $SCRIBUS_RGB \
                     "../${i%.*}-$PROFILENAME-$DPI-dpi.tif";
                 done
@@ -990,7 +960,7 @@ do
                     -flatten \
                     -quality 100 \
                     -colorspace CMYK \
-                    -background $BGCOLOR \
+                    -background white \
                     -profile $GSCRIPT_CMYK \
                     "../${i%.*}-$PROFILENAME-$DPI-dpi.tif";
                 done
@@ -1002,7 +972,7 @@ do
                     -flatten \
                     -quality 100 \
                     -colorspace CMYK \
-                    -background $BGCOLOR \
+                    -background white \
                     -profile $KRITA_CMYK \
                     "../${i%.*}-$PROFILENAME-$DPI-dpi.tif";
                 done
@@ -1014,7 +984,7 @@ do
                     -flatten \
                     -quality 100 \
                     -colorspace CMYK \
-                    -background $BGCOLOR \
+                    -background white \
                     -profile $SCRIBUS_CMYK \
                     "../${i%.*}-$PROFILENAME-$DPI-dpi.tif";
                 done
