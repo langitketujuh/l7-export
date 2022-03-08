@@ -44,11 +44,13 @@ usage() {
             * Depth 16-bit.
             * Colorspace RGB/CMYK.
             * Embed color profile CMYK for jpg, tif, psd, and pdf raster.
-                RGB   : Default - srgb
-                CMYK  : Krita   - chemical proof
-                CMYK  : Generic - swop2006 coated3v2
-                CMYK  : Corel   - japan color 2001 coated
-                CMYK  : Adobe   - u.s. web coated (swop) v2
+                RGB   : Colord - sRGB (default)
+                RGB   : Ghostscript - Artifex sRGB Profile
+                RGB   : Krita - scRGB (lcms internal)
+                RGB   : Scribus- sRGB display profile (ICC v2.2)
+                CMYK  : Ghostscript - Artifex CMYK SWOP Profile
+                CMYK  : Krita - Chemical proof
+                CMYK  : Scribus - ISO Coated v2 300% (basICColor)
             * Merge PDF
 
 EOF
@@ -101,67 +103,6 @@ for arg in "$@"; do
                 inkscape ghostscript ImageMagick libwebp-tools python3-scour zip
             else
                 echo -e "\033[1;36m[1]\033[0m Install depedencies > What your os?"
-            fi
-            echo -e "\033[1;36m[2]\033[0m Adobe icc"
-            echo -e "[*] Checking"
-            if find /usr/share/color/icc/adobe/ -name "*.icc" -type f >/dev/null 2>&1; then
-                echo -e "[*] Adobe icc installed"
-            else
-                echo -e "[*] Preparing new dir $TMP"
-                mkdir $TMP/adobe-icc >/dev/null 2>&1
-                cd $TMP/adobe-icc
-                echo -e "[*] Download Adobe icc Profiles"
-                wget -c https://download.adobe.com/pub/adobe/iccprofiles/mac/AdobeICCProfilesCS4Mac_end-user.zip >/dev/null 2>&1
-                echo -e "[*] Unzip"
-                unzip -o -q AdobeICCProfilesCS4Mac_end-user.zip >/dev/null 2>&1
-                echo -e "[*] Installing"
-                install -D -m644 -t /usr/share/color/icc/adobe/ */RGB/*.icc
-                install -D -m644 -t /usr/share/color/icc/adobe/ */CMYK/*.icc
-                install -D -m644 -t /usr/share/doc/adobe */*.pdf
-                if find /usr/share/color/icc/adobe/ -name "*.icc" -type f >/dev/null 2>&1; then
-                    echo -e "" >/dev/null 2>&1
-                else
-                    echo -e "[-] Adobe icc is not already installed!"
-                    exit;
-                fi
-            fi
-            echo -e "\033[1;36m[3]\033[0m Krita cmyk icm"
-            echo -e "[*] Checking"
-            if find /usr/share/color/icc/krita/ -name "*.icm" -type f >/dev/null 2>&1; then
-                echo -e "[*] Krita cmyk icm installed"
-            else
-                echo -e "[*] Preparing new dir $TMP"
-                mkdir $TMP/krita-icc >/dev/null 2>&1
-                cd $TMP/krita-icc
-                echo -e "[*] Download Krita cmyk icm Profiles"
-                wget -c https://github.com/KDE/krita/raw/master/krita/data/profiles/cmyk.icm >/dev/null 2>&1
-                echo -e "[*] Installing"
-                install -D -m644 -t /usr/share/color/icc/krita *.icm
-                if find /usr/share/color/icc/krita/ -name "*.icm" -type f >/dev/null 2>&1; then
-                    echo -e "" >/dev/null 2>&1
-                else
-                    echo -e "[-] Krita cmyk icm is not already installed!"
-                    exit;
-                fi
-            fi
-            echo -e "\033[1;36m[4]\033[0m IDEAlliance icc"
-            echo -e "[*] Checking"
-            if find /usr/share/color/icc/idealliance/ -name "*.icc" -type f >/dev/null 2>&1; then
-                echo -e "[*] IDEAlliance icc installed"
-            else
-                echo -e "[*] Preparing new dir $TMP"
-                mkdir $TMP/idea-icc >/dev/null 2>&1
-                cd $TMP/idea-icc
-                echo -e "[*] Download SWOP2006_Coated3v2 icc Profiles"
-                wget -c http://www.color.org/registry/profiles/SWOP2006_Coated3v2.icc >/dev/null 2>&1
-                echo -e "[*] Installing"
-                install -D -m644 -t /usr/share/color/icc/idealliance *.icc
-                if find /usr/share/color/icc/idealliance/ -name "*.icc" -type f >/dev/null 2>&1; then
-                    echo -e "" >/dev/null 2>&1
-                else
-                    echo -e "[-] IDEAlliance icc is not already installed!"
-                    exit;
-                fi
             fi
             echo -e "\033[1;36m[FINISH]\033[0m Installation was successful!"
             exit 0
@@ -241,13 +182,6 @@ check_depedencies() {
         echo >/dev/null 2>&1
     else
         echo -e "\033[1;91m[FAILED]\033[0m Not detected Inkscape 1.x!"
-        exit;
-    fi
-    if find . -name "$CHEMICAL_PROOF" -type f >/dev/null 2>&1; then
-        echo >/dev/null 2>&1
-    else
-        echo -e "\033[1;91m[FAILED]\033[0m Krita cmyk icm is not already installed."
-        echo -e "Please run \033[1;33mdoas/sudo l7-export --install\033[0m";
         exit;
     fi
     if convert -version >/dev/null 2>&1; then
