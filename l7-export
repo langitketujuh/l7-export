@@ -943,11 +943,13 @@ do
             fi
             echo -e ""
             echo -e "Color Profile:"
-            echo -e "  \033[1;33m[1] RGB > Default\033[0m \t(sRGB) - recommended"
-            echo -e "  \033[1;33m[2] CMYK > Krita\033[0m \t(Chemical proof)"
-            echo -e "  \033[1;33m[3] CMYK > Generic\033[0m \t(SWOP2006 Coated3v2)"
-            echo -e "  \033[1;33m[4] CMYK > Corel\033[0m \t(Japan Color 2001 Coated)"
-            echo -e "  \033[1;33m[5] CMYK > Adobe\033[0m \t(U.S. Web Coated (SWOP) v2)"
+            echo -e "  \033[1;33m[1] RGB > Colord\033[0m \t\tsRGB - recommended"
+            echo -e "  \033[1;33m[2] RGB > Ghostscript\033[0m \tArtifex sRGB Profile"
+            echo -e "  \033[1;33m[3] RGB > Krita\033[0m \t\tscRGB (lcms internal)"
+            echo -e "  \033[1;33m[4] RGB > Scribus\033[0m \t\tsRGB display profile (ICC v2.2)"
+            echo -e "  \033[1;33m[5] CMYK > Ghostscript\033[0m \tArtifex CMYK SWOP Profile"
+            echo -e "  \033[1;33m[6] CMYK > Krita\033[0m \t\tChemical proof"
+            echo -e "  \033[1;33m[7] CMYK > Scribus\033[0m \t\tISO Coated v2 300% (basICColor)"
             read -e -p "Number Profile: " ICC
             if [ -z $ICC ]; then
                 echo -e "\033[1;91m[FAILED]\033[0m Color profile is empty."
@@ -960,6 +962,10 @@ do
                 elif [ $ICC = 4 ]; then
                 echo -e "" >/dev/null 2>&1
                 elif [ $ICC = 5 ]; then
+                echo -e "" >/dev/null 2>&1
+                elif [ $ICC = 6 ]; then
+                echo -e "" >/dev/null 2>&1
+                elif [ $ICC = 7 ]; then
                 echo -e "" >/dev/null 2>&1
             else
                 echo -e "\033[1;91m[FAILED]\033[0m "$ICC" is not support."
@@ -992,7 +998,8 @@ do
             to_png
             cd "$DIRECTORY"/$CACHE
             if [ $ICC = 1 ]; then
-                PROFILENAME="srgb"
+                #rgb
+                PROFILENAME="colord_rgb"
                 for i in *.png; do
                     convert "$i"  \
                     -depth 8 \
@@ -1000,47 +1007,48 @@ do
                     -quality 100 \
                     -colorspace sRGB \
                     -background $BGCOLOR \
-                    -profile $COLORD \
+                    -profile $COLORD_RGB \
                     "../${i%.*}-$PROFILENAME-$DPI-dpi.tif";
                 done
                 elif [ $ICC = 2 ]; then
-                PROFILENAME="cmyk-krita"
+                PROFILENAME="gscript_rgb"
                 for i in *.png; do
                     convert "$i"  \
                     -depth 8 \
                     -flatten \
                     -quality 100 \
-                    -colorspace CMYK \
+                    -colorspace sRGB \
                     -background $BGCOLOR \
-                    -profile $CHEMICAL_PROOF \
+                    -profile $GSCRIPT_RGB \
                     "../${i%.*}-$PROFILENAME-$DPI-dpi.tif";
                 done
                 elif [ $ICC = 3 ]; then
-                PROFILENAME="cmyk-generic"
+                PROFILENAME="krita_rgb"
                 for i in *.png; do
                     convert "$i"  \
                     -depth 8 \
                     -flatten \
                     -quality 100 \
-                    -colorspace CMYK \
+                    -colorspace sRGB \
                     -background $BGCOLOR \
-                    -profile $SWOP2006_COATED3V2 \
+                    -profile $KRITA_RGB \
                     "../${i%.*}-$PROFILENAME-$DPI-dpi.tif";
                 done
                 elif [ $ICC = 4 ]; then
-                PROFILENAME="cmyk-corel"
+                PROFILENAME="scribus_rgb"
                 for i in *.png; do
                     convert "$i"  \
                     -depth 8 \
                     -flatten \
                     -quality 100 \
-                    -colorspace CMYK \
+                    -colorspace sRGB \
                     -background $BGCOLOR \
-                    -profile $JAPANCOLOR2001COATED \
+                    -profile $SCRIBUS_RGB \
                     "../${i%.*}-$PROFILENAME-$DPI-dpi.tif";
                 done
+                #cmyk
                 elif [ $ICC = 5 ]; then
-                PROFILENAME="cmyk-adobe"
+                PROFILENAME="gscript_cmyk"
                 for i in *.png; do
                     convert "$i"  \
                     -depth 8 \
@@ -1048,7 +1056,31 @@ do
                     -quality 100 \
                     -colorspace CMYK \
                     -background $BGCOLOR \
-                    -profile $USWEBCOATEDSWOP \
+                    -profile $GSCRIPT_CMYK \
+                    "../${i%.*}-$PROFILENAME-$DPI-dpi.tif";
+                done
+                elif [ $ICC = 6 ]; then
+                PROFILENAME="krita_cmyk"
+                for i in *.png; do
+                    convert "$i"  \
+                    -depth 8 \
+                    -flatten \
+                    -quality 100 \
+                    -colorspace CMYK \
+                    -background $BGCOLOR \
+                    -profile $KRITA_CMYK \
+                    "../${i%.*}-$PROFILENAME-$DPI-dpi.tif";
+                done
+                elif [ $ICC = 7 ]; then
+                PROFILENAME="scribus_cmyk"
+                for i in *.png; do
+                    convert "$i"  \
+                    -depth 8 \
+                    -flatten \
+                    -quality 100 \
+                    -colorspace CMYK \
+                    -background $BGCOLOR \
+                    -profile $SCRIBUS_CMYK \
                     "../${i%.*}-$PROFILENAME-$DPI-dpi.tif";
                 done
             else
