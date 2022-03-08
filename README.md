@@ -22,11 +22,13 @@ L7 Export merupakan fork dari <a href="https://github.com/raniaamina/inkporter/b
 
 Profil warna yang didukung:
 
-* RGB  > Default    (sRGB)
-* CMYK > Krita      (Chemical proof)
-* CMYK > Generic    (SWOP2006 Coated3v2)
-* CMYK > Corel      (Japan Color 2001 Coated)
-* CMYK > Adobe      (U.S. Web Coated (SWOP) v2)
+* RGB   : Colord - sRGB (default)
+* RGB   : Ghostscript - Artifex sRGB Profile
+* RGB   : Krita - scRGB (lcms internal)
+* RGB   : Scribus- sRGB display profile (ICC v2.2)
+* CMYK  : Ghostscript - Artifex CMYK SWOP Profile
+* CMYK  : Krita - Chemical proof
+* CMYK  : Scribus - ISO Coated v2 300% (basICColor)
 
 ## Ekspor Marketplace
 
@@ -51,16 +53,12 @@ Fitur ini untuk memeriksa objek-objek yang tidak didukung EPS8. Misalnya transpa
 
 ## Pemasangan
 
-Secara bawaan sudah ada di Langitketujuh OS tinggal menambah color profile saja
+Secara bawaan sudah ada di Langitketujuh OS. Sedangkan untuk linux lain seperti Ubuntu, Debian, openSUSE, Arch, Fedora, Void dan derivatifnya jalankan perintah dibawah ini.
 
 ```bash
-doas l7-export --install
-```
-
-Sedangkan untuk linux lain seperti Ubuntu, Debian, openSUSE, Arch, Fedora, Void dan derivatifnya. Jalankan perintah ini
-
-```bash
-sudo curl "https://langitketujuh.id/sh/l7-export" | sudo bash
+git clone --depth 1 https://gitlab.com/langitketujuh/l7-export
+cd l7-export/
+sudo make install
 sudo l7-export --install
 ```
 
