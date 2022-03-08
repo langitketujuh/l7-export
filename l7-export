@@ -1101,11 +1101,13 @@ do
                 fi
                 echo -e ""
                 echo -e "Color Profile:"
-                echo -e "  \033[1;33m[1] RGB > Default\033[0m \t(sRGB) - recommended"
-                echo -e "  \033[1;33m[2] CMYK > Krita\033[0m \t(Chemical proof)"
-                echo -e "  \033[1;33m[3] CMYK > Generic\033[0m \t(SWOP2006 Coated3v2)"
-                echo -e "  \033[1;33m[4] CMYK > Corel\033[0m \t(Japan Color 2001 Coated)"
-                echo -e "  \033[1;33m[5] CMYK > Adobe\033[0m \t(U.S. Web Coated (SWOP) v2)"
+                echo -e "  \033[1;33m[1] RGB > Colord\033[0m \t\t(sRGB) - recommended"
+                echo -e "  \033[1;33m[2] RGB > Ghostscript\033[0m \t(Artifex sRGB Profile)"
+                echo -e "  \033[1;33m[3] RGB > Krita\033[0m \t\t(scRGB lcms internal)"
+                echo -e "  \033[1;33m[4] RGB > Scribus\033[0m \t\t(sRGB ICC v2.2)"
+                echo -e "  \033[1;33m[5] CMYK > Ghostscript\033[0m \t(Artifex CMYK SWOP Profile)"
+                echo -e "  \033[1;33m[6] CMYK > Krita\033[0m \t\t(Chemical proof)"
+                echo -e "  \033[1;33m[7] CMYK > Scribus\033[0m \t\t(ISO Coated v2 300% basICColor)"
                 read -e -p "Number Profile: " ICC
                 if [ -z $ICC ]; then
                     echo -e "\033[1;91m[FAILED]\033[0m Color profile is empty."
@@ -1118,6 +1120,10 @@ do
                     elif [ $ICC = 4 ]; then
                     echo -e "" >/dev/null 2>&1
                     elif [ $ICC = 5 ]; then
+                    echo -e "" >/dev/null 2>&1
+                    elif [ $ICC = 6 ]; then
+                    echo -e "" >/dev/null 2>&1
+                    elif [ $ICC = 7 ]; then
                     echo -e "" >/dev/null 2>&1
                 else
                     echo -e "\033[1;91m[FAILED]\033[0m "$ICC" is not support."
@@ -1149,7 +1155,7 @@ do
                 to_svg
                 cd "$DIRECTORY"/$CACHE
                 if [ $COLOR = 1 ]; then
-                    PROFILENAME="srgb"
+                    PROFILENAME="colord_rgb"
                     for i in *.svg;
                     do cat "$i" | inkscape --pipe -C \
                         -o "${i%.*}-vector-$PROFILENAME.pdf" \
@@ -1198,7 +1204,7 @@ do
                 elif [ $output = 2 ]; then
                 if [ $ICC = 1 ]; then
                     if [ $MERGE == 'y' ]; then
-                        PROFILENAME="srgb"
+                        PROFILENAME="colord_rgb"
                         to_png
                         cd "$DIRECTORY"/$CACHE
                         for i in *.png; do
@@ -1206,7 +1212,7 @@ do
                             -depth 8 \
                             -quality 100 \
                             -colorspace sRGB \
-                            -profile $COLORD \
+                            -profile $COLORD_RGB \
                             "${i%.*}-raster.pdf";
                         done
                         mkdir -p merge
@@ -1219,7 +1225,7 @@ do
                         *.pdf;
                         cd ..
                     else
-                        PROFILENAME="srgb"
+                        PROFILENAME="colord_rgb"
                         to_png
                         cd "$DIRECTORY"/$CACHE
                         for i in *.png; do
@@ -1227,21 +1233,21 @@ do
                             -quality 100 \
                             -colorspace sRGB \
                             -depth 8 \
-                            -profile $COLORD \
+                            -profile $COLORD_RGB \
                             "../${i%.*}-raster-$PROFILENAME-$DPI-dpi.pdf";
                         done
                     fi
                     elif [ $ICC = 2 ]; then
                     if [ $MERGE == 'y' ]; then
-                        PROFILENAME="cmyk-krita"
+                        PROFILENAME="gscript_rgb"
                         to_png
                         cd "$DIRECTORY"/$CACHE
                         for i in *.png; do
                             convert "$i" \
                             -depth 8 \
                             -quality 100 \
-                            -colorspace CMYK \
-                            -profile $CHEMICAL_PROOF \
+                            -colorspace sRGB \
+                            -profile $GSCRIPT_RGB \
                             "../${i%.*}-raster.pdf";
                         done
                         mkdir -p merge
@@ -1254,29 +1260,29 @@ do
                         *.pdf;
                         cd ..
                     else
-                        PROFILENAME="cmyk-krita"
+                        PROFILENAME="gscript_rgb"
                         to_png
                         cd "$DIRECTORY"/$CACHE
                         for i in *.png; do
                             convert "$i" \
                             -depth 8 \
                             -quality 100 \
-                            -colorspace CMYK \
-                            -profile $CHEMICAL_PROOF \
+                            -colorspace sRGB \
+                            -profile $GSCRIPT_RGB \
                             "../${i%.*}-raster-$PROFILENAME-$DPI-dpi.pdf";
                         done
                     fi
                     elif [ $ICC = 3 ]; then
                     if [ $MERGE == 'y' ]; then
-                        PROFILENAME="cmyk-generic"
+                        PROFILENAME="krita_rgb"
                         to_png
                         cd "$DIRECTORY"/$CACHE
                         for i in *.png; do
                             convert "$i" \
                             -depth 8 \
                             -quality 100 \
-                            -colorspace CMYK \
-                            -profile $SWOP2006_COATED3V2 \
+                            -colorspace sRGB \
+                            -profile $KRITA_RGB \
                             "${i%.*}-raster.pdf";
                         done
                         mkdir -p merge
@@ -1289,29 +1295,29 @@ do
                         *.pdf;
                         cd ..
                     else
-                        PROFILENAME="cmyk-generic"
+                        PROFILENAME="krita_rgb"
                         to_png
                         cd "$DIRECTORY"/$CACHE
                         for i in *.png; do
                             convert "$i" \
                             -depth 8 \
                             -quality 100 \
-                            -colorspace CMYK \
-                            -profile $SWOP2006_COATED3V2 \
+                            -colorspace sRGB \
+                            -profile $KRITA_RGB \
                             "../${i%.*}-raster-$PROFILENAME-$DPI-dpi.pdf";
                         done
                     fi
                     elif [ $ICC = 4 ]; then
                     if [ $MERGE == 'y' ]; then
-                        PROFILENAME="cmyk-corel"
+                        PROFILENAME="scribus_rgb"
                         to_png
                         cd "$DIRECTORY"/$CACHE
                         for i in *.png; do
                             convert "$i" \
                             -depth 8 \
                             -quality 100 \
-                            -colorspace CMYK \
-                            -profile $JAPANCOLOR2001COATED \
+                            -colorspace sRGB \
+                            -profile $SCRIBUS_RGB \
                             "${i%.*}-raster.pdf";
                         done
                         mkdir -p merge
@@ -1324,21 +1330,21 @@ do
                         *.pdf;
                         cd ..
                     else
-                        PROFILENAME="cmyk-corel"
+                        PROFILENAME="scribus_rgb"
                         to_png
                         cd "$DIRECTORY"/$CACHE
                         for i in *.png; do
                             convert "$i" \
                             -depth 8 \
                             -quality 100 \
-                            -colorspace CMYK \
-                            -profile $JAPANCOLOR2001COATED \
+                            -colorspace sRGB \
+                            -profile $SCRIBUS_RGB \
                             "../${i%.*}-raster-$PROFILENAME-$DPI-dpi.pdf";
                         done
                     fi
                     elif [ $ICC = 5 ]; then
                     if [ $MERGE == 'y' ]; then
-                        PROFILENAME="cmyk-adobe"
+                        PROFILENAME="gscript_cmyk"
                         to_png
                         cd "$DIRECTORY"/$CACHE
                         for i in *.png; do
@@ -1346,7 +1352,42 @@ do
                             -depth 8 \
                             -quality 100 \
                             -colorspace CMYK \
-                            -profile $USWEBCOATEDSWOP \
+                            -profile $GSCRIPT_CMYK \
+                            "../${i%.*}-raster.pdf";
+                        done
+                        mkdir -p merge
+                        mv *.pdf merge
+                        cd merge
+                        # convert merge
+                        gs -q -dSAFER -dBATCH -dNOPAUSE -dNOCACHE \
+                        -sDEVICE=pdfwrite \
+                        -sOutputFile=../../$DIRECTORY-merge-raster-$PROFILENAME-$DPI-dpi.pdf \
+                        *.pdf;
+                        cd ..
+                    else
+                        PROFILENAME="gscript_cmyk"
+                        to_png
+                        cd "$DIRECTORY"/$CACHE
+                        for i in *.png; do
+                            convert "$i" \
+                            -depth 8 \
+                            -quality 100 \
+                            -colorspace CMYK \
+                            -profile $GSCRIPT_CMYK \
+                            "../${i%.*}-raster-$PROFILENAME-$DPI-dpi.pdf";
+                        done
+                    fi
+                    elif [ $ICC = 6 ]; then
+                    if [ $MERGE == 'y' ]; then
+                        PROFILENAME="krita_cmyk"
+                        to_png
+                        cd "$DIRECTORY"/$CACHE
+                        for i in *.png; do
+                            convert "$i" \
+                            -depth 8 \
+                            -quality 100 \
+                            -colorspace CMYK \
+                            -profile $KRITA_CMYK \
                             "${i%.*}-raster.pdf";
                         done
                         mkdir -p merge
@@ -1359,15 +1400,50 @@ do
                         *.pdf;
                         cd ..
                     else
-                        PROFILENAME="cmyk-adobe"
+                        PROFILENAME="krita_cmyk"
                         to_png
                         cd "$DIRECTORY"/$CACHE
                         for i in *.png; do
                             convert "$i" \
+                            -depth 8 \
                             -quality 100 \
                             -colorspace CMYK \
+                            -profile $KRITA_CMYK \
+                            "../${i%.*}-raster-$PROFILENAME-$DPI-dpi.pdf";
+                        done
+                    fi
+                    elif [ $ICC = 7 ]; then
+                    if [ $MERGE == 'y' ]; then
+                        PROFILENAME="scribus_cmyk"
+                        to_png
+                        cd "$DIRECTORY"/$CACHE
+                        for i in *.png; do
+                            convert "$i" \
                             -depth 8 \
-                            -profile $USWEBCOATEDSWOP \
+                            -quality 100 \
+                            -colorspace CMYK \
+                            -profile $SCRIBUS_CMYK \
+                            "${i%.*}-raster.pdf";
+                        done
+                        mkdir -p merge
+                        mv *.pdf merge
+                        cd merge
+                        # convert merge
+                        gs -q -dSAFER -dBATCH -dNOPAUSE -dNOCACHE \
+                        -sDEVICE=pdfwrite \
+                        -sOutputFile=../../$DIRECTORY-merge-raster-$PROFILENAME-$DPI-dpi.pdf \
+                        *.pdf;
+                        cd ..
+                    else
+                        PROFILENAME="scribus_cmyk"
+                        to_png
+                        cd "$DIRECTORY"/$CACHE
+                        for i in *.png; do
+                            convert "$i" \
+                            -depth 8 \
+                            -quality 100 \
+                            -colorspace CMYK \
+                            -profile $SCRIBUS_CMYK \
                             "../${i%.*}-raster-$PROFILENAME-$DPI-dpi.pdf";
                         done
                     fi
