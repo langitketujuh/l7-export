@@ -760,7 +760,7 @@ do
             echo -e "  \033[1;33m[4] RGB > Scribus\033[0m \t\t(sRGB ICC v2.2)"
             echo -e "  \033[1;33m[5] CMYK > Ghostscript\033[0m \t(Artifex CMYK SWOP Profile)"
             echo -e "  \033[1;33m[6] CMYK > Krita\033[0m \t\t(Chemical proof)"
-            echo -e "  \033[1;33m[7] CMYK > Scribus\033[0m \t\t(basICColor CMYKick v1.2)"
+            echo -e "  \033[1;33m[7] CMYK > Scribus\033[0m \t\t(ISO Coated v2 300% basICColor)"
             read -e -p "Number Profile: " ICC
             if [ -z $ICC ]; then
                 echo -e "\033[1;91m[FAILED]\033[0m Color profile is empty."
