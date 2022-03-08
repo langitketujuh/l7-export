@@ -7,8 +7,8 @@ L7 Export merupakan fork dari <a href="https://github.com/raniaamina/inkporter/b
 
 ## Fitur
 
-* Mendukung Ekspor ke marketplace
-* Terdapat Validator EPS8
+* Mendukung Ekspor ke marketplace.
+* Terdapat Validator EPS8.
 * Ekspor ke berkas Eps rgb.
 * Ekspor ke berkas Ai rgb/cmyk.
 * Ekspor ke berkas Psd rgb/cmyk.
@@ -34,14 +34,13 @@ Profil warna yang didukung:
 
 Sederhananya fitur ini mengekspor id objek inkscape menjadi berkas siap upload. Marketplace tersebut antara lain:
 
-* Pngtree
-* Canva
-* Freepik
-* Adobe stock
-* Vectorstock
-* Vecteezy
-* Shutterstock
-* Flaticon / Iconfinder
+- (EPS + PNG).zip
+- (EPS + JPG).zip
+- EPS.zip + JPG
+- EPS.zip + PNG
+- EPS + JPG
+- EPS
+- SVG
 
 In syaa Allah akan ada pembaruan secara berkala.
 
@@ -61,6 +60,8 @@ cd l7-export/
 sudo make install
 sudo l7-export --install
 ```
+
+Catatan: L7 Export akan berjalan di ubuntu dengan inkscape diatas versi 1.0.
 
 ## Depedensi
 
