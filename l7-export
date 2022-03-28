@@ -4,7 +4,7 @@ TITLE="LangitKetujuh Export"
 NAME=$(basename "$0")
 INSTALLDIR=$(which basename)
 INKSCAPEDIR=$(which inkscape)
-VERSION="1.16.20"
+VERSION="1.16.20.1"
 WEB="https://langitketujuh.id"
 LICENSE="GPL-3.0-or-later"
 
@@ -62,6 +62,80 @@ check_root(){
         exit
     fi
 }
+
+for arg in "$@"; do
+    case $arg in
+        --install|-i)
+            check_root
+            if xbps-install --version >/dev/null 2>&1;
+            then
+                echo -e "\033[1;36m[1]\033[0m Install depedencies > XBPS distro"
+                mkdir -pv $TMP
+                xbps-install -Sy xbps;
+                xbps-install sudo curl base-files colord unzip which \
+                inkscape ghostscript ImageMagick libwebp-tools python3-scour zip
+            elif dnf --version >/dev/null 2>&1;
+            then
+                echo -e "\033[1;36m[1]\033[0m Install depedencies > RPM distro"
+                mkdir -pv $TMP
+                yum install sudo curl fedora-release colord unzip which \
+                inkscape ghostscript ImageMagick libwebp-tools python3-scour zip
+            elif pacman --version >/dev/null 2>&1;
+            then
+                echo -e "\033[1;36m[1]\033[0m Install depedencies > Pacman distro"
+                mkdir -pv $TMP
+                pacman -Syy;
+                pacman -S sudo curl lsb-release colord unzip which \
+                inkscape ghostscript imagemagick libwebp \
+                poppler poppler-glib poppler-qt5 scour zip
+            elif apt --version >/dev/null 2>&1;
+            then
+                echo -e "\033[1;36m[1]\033[0m Install depedencies > APT distro"
+                mkdir -pv $TMP
+                apt -y update;
+                apt install sudo curl lsb-release colord unzip \
+                inkscape ghostscript imagemagick webp python3-scour scour zip
+            elif zypper --version >/dev/null 2>&1;
+            then
+                echo -e "\033[1;36m[1]\033[0m Install depedencies > Zypper distro"
+                mkdir -pv $TMP
+                zypper install sudo curl lsb-release colord unzip which \
+                inkscape ghostscript ImageMagick libwebp-tools python3-scour zip
+            else
+                echo -e "\033[1;36m[1]\033[0m Install depedencies > What your os?"
+            fi
+            echo -e "\033[1;36m[FINISH]\033[0m Installation was successful!"
+            exit 0
+        ;;
+        --deps|-d)
+            echo -e "\033[1;33minkscape version: \033[0m"
+            if inkscape --version | grep "Inkscape 1\.*" ;then
+                echo >/dev/null 2>&1; else
+                echo
+                echo "$NAME version: v$VERSION"
+                echo "Only support for Inkscape 1.x!";
+            fi
+            echo
+            echo -e "\033[1;33mConvert ImageMagick version: \033[0m"
+            convert -version | grep Version:
+            echo
+            echo -e "\033[1;33mghostscript version: \033[0m"
+            gs --version
+            echo
+            echo -e "\033[1;33mwebp version: \033[0m"
+            cwebp -version
+            echo
+            exit 0
+        ;;
+        --help|-h)
+            usage
+            exit 0
+        ;;
+        --version|-v)
+            echo -e "\033[1;33m $NAME\033[0m version $VERSION"
+            exit 0
+    esac
+done
 
 search_file() {
     find . -name "$SOURCE" -type f | wc -c
@@ -307,80 +381,6 @@ finish() {
 check_file
 check_id
 check_depedencies
-
-for arg in "$@"; do
-    case $arg in
-        --install|-i)
-            check_root
-            if xbps-install --version >/dev/null 2>&1;
-            then
-                echo -e "\033[1;36m[1]\033[0m Install depedencies > XBPS distro"
-                mkdir -pv $TMP
-                xbps-install -Sy xbps;
-                xbps-install sudo curl base-files colord unzip which \
-                inkscape ghostscript ImageMagick libwebp-tools python3-scour zip
-            elif dnf --version >/dev/null 2>&1;
-            then
-                echo -e "\033[1;36m[1]\033[0m Install depedencies > RPM distro"
-                mkdir -pv $TMP
-                yum install sudo curl fedora-release colord unzip which \
-                inkscape ghostscript ImageMagick libwebp-tools python3-scour zip
-            elif pacman --version >/dev/null 2>&1;
-            then
-                echo -e "\033[1;36m[1]\033[0m Install depedencies > Pacman distro"
-                mkdir -pv $TMP
-                pacman -Syy;
-                pacman -S sudo curl lsb-release colord unzip which \
-                inkscape ghostscript imagemagick libwebp \
-                poppler poppler-glib poppler-qt5 scour zip
-            elif apt --version >/dev/null 2>&1;
-            then
-                echo -e "\033[1;36m[1]\033[0m Install depedencies > APT distro"
-                mkdir -pv $TMP
-                apt -y update;
-                apt install sudo curl lsb-release colord unzip \
-                inkscape ghostscript imagemagick webp python3-scour scour zip
-            elif zypper --version >/dev/null 2>&1;
-            then
-                echo -e "\033[1;36m[1]\033[0m Install depedencies > Zypper distro"
-                mkdir -pv $TMP
-                zypper install sudo curl lsb-release colord unzip which \
-                inkscape ghostscript ImageMagick libwebp-tools python3-scour zip
-            else
-                echo -e "\033[1;36m[1]\033[0m Install depedencies > What your os?"
-            fi
-            echo -e "\033[1;36m[FINISH]\033[0m Installation was successful!"
-            exit 0
-        ;;
-        --deps|-d)
-            echo -e "\033[1;33minkscape version: \033[0m"
-            if inkscape --version | grep "Inkscape 1\.*" ;then
-                echo >/dev/null 2>&1; else
-                echo
-                echo "$NAME version: v$VERSION"
-                echo "Only support for Inkscape 1.x!";
-            fi
-            echo
-            echo -e "\033[1;33mConvert ImageMagick version: \033[0m"
-            convert -version | grep Version:
-            echo
-            echo -e "\033[1;33mghostscript version: \033[0m"
-            gs --version
-            echo
-            echo -e "\033[1;33mwebp version: \033[0m"
-            cwebp -version
-            echo
-            exit 0
-        ;;
-        --help|-h)
-            usage
-            exit 0
-        ;;
-        --version|-v)
-            echo -e "\033[1;33m $NAME\033[0m version $VERSION"
-            exit 0
-    esac
-done
 
 PS3='Number: '
 options=("Market" "Png" "Jpg" "Tif" "Pdf" "Svg" "Eps" "Ai" "Psd" "Webp" "Cancel")
