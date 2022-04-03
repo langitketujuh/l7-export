@@ -4,7 +4,7 @@ TITLE="LangitKetujuh Export"
 NAME=$(basename "$0")
 INSTALLDIR=$(which basename)
 INKSCAPEDIR=$(which inkscape)
-VERSION="1.16.21"
+VERSION="1.16.22"
 WEB="https://langitketujuh.id"
 LICENSE="GPL-3.0-or-later"
 
@@ -22,6 +22,7 @@ SCRIBUS_CMYK="$PROFILES/scribus/ISOcoated_v2_300_bas.icc"
 SOURCE=$1
 IDPATTERN=$2
 CACHE=".cache"
+SCOUR_SOURCE=".scour_$SOURCE"
 OPTIM_SOURCE=".optim_$SOURCE"
 
 usage() {
@@ -207,13 +208,44 @@ check_depedencies() {
     fi
 }
 
+rm_blendmode() {
+    sed -i "s/mix-blend-mode:normal//g" $OPTIM_SOURCE >/dev/null 2>&1
+    sed -i "s/mix-blend-mode:multiply//g" $OPTIM_SOURCE >/dev/null 2>&1
+    sed -i "s/mix-blend-mode:screen//g" $OPTIM_SOURCE >/dev/null 2>&1
+    sed -i "s/mix-blend-mode:darken//g" $OPTIM_SOURCE >/dev/null 2>&1
+    sed -i "s/mix-blend-mode:overlay//g" $OPTIM_SOURCE >/dev/null 2>&1
+    sed -i "s/mix-blend-mode:color-dodge//g" $OPTIM_SOURCE >/dev/null 2>&1
+    sed -i "s/mix-blend-mode:color-burn//g" $OPTIM_SOURCE >/dev/null 2>&1
+    sed -i "s/mix-blend-mode:hard-light//g" $OPTIM_SOURCE >/dev/null 2>&1
+    sed -i "s/mix-blend-mode:soft-light//g" $OPTIM_SOURCE >/dev/null 2>&1
+    sed -i "s/mix-blend-mode:difference//g" $OPTIM_SOURCE >/dev/null 2>&1
+    sed -i "s/mix-blend-mode:exclusion//g" $OPTIM_SOURCE >/dev/null 2>&1
+    sed -i "s/mix-blend-mode:hue//g" $OPTIM_SOURCE >/dev/null 2>&1
+    sed -i "s/mix-blend-mode:saturation//g" $OPTIM_SOURCE >/dev/null 2>&1
+    sed -i "s/mix-blend-mode:color//g" $OPTIM_SOURCE >/dev/null 2>&1
+    sed -i "s/mix-blend-mode:lighten//g" $OPTIM_SOURCE >/dev/null 2>&1
+    sed -i "s/mix-blend-mode:luminosity//g" $OPTIM_SOURCE >/dev/null 2>&1
+    sed -i 's/style=""//g' $OPTIM_SOURCE >/dev/null 2>&1
+    sed -i 's/ >/>/g' $OPTIM_SOURCE >/dev/null 2>&1
+}
+
 optimized_svg() {
+    inkscape \
+    --export-type=svg \
+    --export-plain-svg \
+    --export-filename="$SCOUR_SOURCE" \
+    $SOURCE >/dev/null 2>&1
+
     scour -q --remove-descriptive-elements \
     --enable-comment-stripping \
-    -i $SOURCE -o $OPTIM_SOURCE >/dev/null 2>&1
+    --indent=none \
+    -i $SCOUR_SOURCE -o $OPTIM_SOURCE >/dev/null 2>&1
+
+    rm_blendmode
 }
 
 rm_optimized_svg() {
+    rm $SCOUR_SOURCE >/dev/null 2>&1
     rm $OPTIM_SOURCE >/dev/null 2>&1
 }
 
@@ -251,7 +283,7 @@ eps_validator() {
     check_clip_path() {
         cat $OPTIM_SOURCE | grep -oE '<clipPath id="[^ ]*"' | sed 's/<clipPath id="//g' | tr -d '")' | sort -u | xargs
     }
-    
+
     check_mask() {
         cat $OPTIM_SOURCE | grep -oE '<mask id="[^ ]*"' | sed 's/<mask id="//g' | tr -d '")' | sort -u | xargs
     }
@@ -383,7 +415,7 @@ check_id
 check_depedencies
 
 PS3='Number: '
-options=("Market" "Png" "Jpg" "Tif" "Pdf" "Svg" "Eps" "Ai" "Psd" "Webp" "Cancel")
+options=("market" "png" "jpg" "tif" "pdf" "svg" "eps" "ai" "psd" "webp" "cancel")
 clear
 echo -e "\033[1;36m$TITLE v$VERSION \033[0m"
 echo -e "\e[3mYet Another CLI Exporter\e[0m"
@@ -392,7 +424,7 @@ echo
 select opt in "${options[@]}"
 do
     case $opt in
-        "Market")
+        "market")
             echo -e "Export to: \033[1;36mMARKETPLACE \033[0m"
             echo -e ""
             eps_validator
@@ -414,19 +446,19 @@ do
                 echo -e "\033[1;91m[FAILED]\033[0m Marketplace is empty."
                 exit
                 elif [ "$MARKET" = 1 ]; then
-                MARKETNAME="Market-1"
+                MARKETNAME="market-1"
                 elif [ "$MARKET" = 2 ]; then
-                MARKETNAME="Market-2"
+                MARKETNAME="market-2"
                 elif [ "$MARKET" = 3 ]; then
-                MARKETNAME="Market-3"
+                MARKETNAME="market-3"
                 elif [ "$MARKET" = 4 ]; then
-                MARKETNAME="Market-4"
+                MARKETNAME="market-4"
                 elif [ "$MARKET" = 5 ]; then
-                MARKETNAME="Market-5"
+                MARKETNAME="market-5"
                 elif [ "$MARKET" = 6 ]; then
-                MARKETNAME="Market-6"
+                MARKETNAME="market-6"
                 elif [ "$MARKET" = 7 ]; then
-                MARKETNAME="Market-7"
+                MARKETNAME="market-7"
             else
                 echo -e "\033[1;91m[FAILED]\033[0m Marketplace not support."
                 exit
@@ -461,7 +493,7 @@ do
                     SVG_OPTIM="0"
                 fi
             fi
-            read -e -p "Folder Output: " -i "$MARKETNAME" DIRECTORY
+            read -e -p "Folder output: " -i "$MARKETNAME" DIRECTORY
             echo -e ""
             if [ -z "$DIRECTORY" ]; then
                 echo -e "\033[1;91m[FAILED]\033[0m Folder output is empty."
@@ -518,8 +550,27 @@ do
                 for f in $(ls $DIRECTORY/$CACHE/); do
                     scour -q --remove-descriptive-elements \
                     --enable-comment-stripping \
+                    --indent=none \
                     -i $DIRECTORY/$CACHE/${f} \
                     -o $DIRECTORY/$CACHE/optim/${f} >/dev/null 2>&1
+                    sed -i "s/mix-blend-mode:normal//g" $DIRECTORY/$CACHE/optim/${f} >/dev/null 2>&1
+                    sed -i "s/mix-blend-mode:multiply//g" $DIRECTORY/$CACHE/optim/${f} >/dev/null 2>&1
+                    sed -i "s/mix-blend-mode:screen//g" $DIRECTORY/$CACHE/optim/${f} >/dev/null 2>&1
+                    sed -i "s/mix-blend-mode:darken//g" $DIRECTORY/$CACHE/optim/${f} >/dev/null 2>&1
+                    sed -i "s/mix-blend-mode:overlay//g" $DIRECTORY/$CACHE/optim/${f} >/dev/null 2>&1
+                    sed -i "s/mix-blend-mode:color-dodge//g" $DIRECTORY/$CACHE/optim/${f} >/dev/null 2>&1
+                    sed -i "s/mix-blend-mode:color-burn//g" $DIRECTORY/$CACHE/optim/${f} >/dev/null 2>&1
+                    sed -i "s/mix-blend-mode:hard-light//g" $DIRECTORY/$CACHE/optim/${f} >/dev/null 2>&1
+                    sed -i "s/mix-blend-mode:soft-light//g" $DIRECTORY/$CACHE/optim/${f} >/dev/null 2>&1
+                    sed -i "s/mix-blend-mode:difference//g" $DIRECTORY/$CACHE/optim/${f} >/dev/null 2>&1
+                    sed -i "s/mix-blend-mode:exclusion//g" $DIRECTORY/$CACHE/optim/${f} >/dev/null 2>&1
+                    sed -i "s/mix-blend-mode:hue//g" $DIRECTORY/$CACHE/optim/${f} >/dev/null 2>&1
+                    sed -i "s/mix-blend-mode:saturation//g" $DIRECTORY/$CACHE/optim/${f} >/dev/null 2>&1
+                    sed -i "s/mix-blend-mode:color//g" $DIRECTORY/$CACHE/optim/${f} >/dev/null 2>&1
+                    sed -i "s/mix-blend-mode:lighten//g" $DIRECTORY/$CACHE/optim/${f} >/dev/null 2>&1
+                    sed -i "s/mix-blend-mode:luminosity//g" $DIRECTORY/$CACHE/optim/${f} >/dev/null 2>&1
+                    sed -i 's/style=""//g' $DIRECTORY/$CACHE/optim/${f} >/dev/null 2>&1
+                    sed -i 's/ >/>/g' $DIRECTORY/$CACHE/optim/${f} >/dev/null 2>&1
                 done
                 mv -f $DIRECTORY/$CACHE/optim/*.svg $DIRECTORY/$CACHE/ >/dev/null 2>&1
             else
@@ -604,7 +655,7 @@ do
             finish
             break
         ;;
-        "Png")
+        "png")
             check_id
             echo -e "Export to: \033[1;36mPNG\033[0m"
             echo -e ""
@@ -646,7 +697,7 @@ do
                 exit
             fi
             echo -e ""
-            read -e -p "Folder Output: " -i "Png" DIRECTORY
+            read -e -p "Folder output: " -i "png" DIRECTORY
             echo -e ""
             if [ -z "$DIRECTORY" ]; then
                 echo -e "\033[1;91m[FAILED]\033[0m Folder output is empty."
@@ -663,7 +714,7 @@ do
             finish
             break
         ;;
-        "Jpg")
+        "jpg")
             echo -e "Export to: \033[1;36mJPG\033[0m"
             echo -e ""
             echo -e "DPI:"
@@ -718,7 +769,7 @@ do
                 exit
             fi
             echo -e ""
-            read -e -p "Folder Output: " -i "Jpg" DIRECTORY
+            read -e -p "Folder output: " -i "jpg" DIRECTORY
             echo -e ""
             if [ -z "$DIRECTORY" ]; then
                 echo -e "\033[1;91m[FAILED]\033[0m Folder output is empty."
@@ -821,7 +872,7 @@ do
             finish
             break
         ;;
-        "Tif")
+        "tif")
             echo -e "Export to: \033[1;36mTIF\033[0m"
             echo -e ""
             echo -e "DPI:"
@@ -892,7 +943,7 @@ do
                 exit
             fi
             echo -e ""
-            read -e -p "Folder Output: " -i "Tif" DIRECTORY
+            read -e -p "Folder output: " -i "tif" DIRECTORY
             echo -e ""
             if [ -z "$DIRECTORY" ]; then
                 echo -e "\033[1;91m[FAILED]\033[0m Folder output is empty."
@@ -995,7 +1046,7 @@ do
             finish
             break
         ;;
-        "Pdf")
+        "pdf")
             echo -e "Export to: \033[1;36mPDF\033[0m"
             echo -e ""
             echo -e "Output:"
@@ -1071,7 +1122,7 @@ do
                 exit
             fi
             echo -e ""
-            read -e -p "Folder Output: " -i "Pdf" DIRECTORY
+            read -e -p "Folder output: " -i "pdf" DIRECTORY
             echo -e ""
             if [ -z "$DIRECTORY" ]; then
                 echo -e "\033[1;91m[FAILED]\033[0m Folder output is empty."
@@ -1396,7 +1447,7 @@ do
             finish
             break
         ;;
-        "Svg")
+        "svg")
             echo -e "Export to: \033[1;36mSVG\033[0m"
             echo -e ""
             read -e -p "Optimized SVG (y/N): " OPTIMIZED
@@ -1405,7 +1456,7 @@ do
             else
                 SVG_OPTIM="0"
             fi
-            read -e -p "Folder Output: " -i "Svg" DIRECTORY
+            read -e -p "Folder output: " -i "svg" DIRECTORY
             echo -e ""
             if [ -z "$DIRECTORY" ]; then
                 echo -e "\033[1;91m[FAILED]\033[0m Folder output is empty."
@@ -1419,6 +1470,7 @@ do
                 for f in $(ls $DIRECTORY/$CACHE/); do
                     scour -q --remove-descriptive-elements \
                     --enable-comment-stripping \
+                    --indent=none \
                     -i $DIRECTORY/$CACHE/${f} \
                     -o $DIRECTORY/$CACHE/optim/${f} >/dev/null 2>&1
                 done
@@ -1431,12 +1483,12 @@ do
             finish
             break
         ;;
-        "Eps")
+        "eps")
             echo -e "Export to: \033[1;36mEPS\033[0m"
             echo -e ""
             eps_validator
             echo -e ""
-            read -e -p "Folder Output: " -i "Eps" DIRECTORY
+            read -e -p "Folder output: " -i "eps" DIRECTORY
             echo -e ""
             if [ -z "$DIRECTORY" ]; then
                 echo -e "\033[1;91m[FAILED]\033[0m Folder output is empty."
@@ -1455,7 +1507,7 @@ do
             finish
             break
         ;;
-        "Ai")
+        "ai")
             echo -e "Export to: \033[1;36mAI\033[0m"
             echo -e ""
             echo -e "Colorspace:"
@@ -1470,7 +1522,7 @@ do
                 exit
             fi
             echo -e ""
-            read -e -p "Folder Output: " -i "Ai" DIRECTORY
+            read -e -p "Folder output: " -i "ai" DIRECTORY
             echo -e ""
             if [ -z "$DIRECTORY" ]; then
                 echo -e "\033[1;91m[FAILED]\033[0m Folder output is empty."
@@ -1502,7 +1554,7 @@ do
             finish
             break
         ;;
-        "Psd")
+        "psd")
             echo -e "Export to: \033[1;36mPSD\033[0m"
             echo -e ""
             echo -e "Depth:"
@@ -1533,7 +1585,7 @@ do
                 exit
             fi
             echo -e ""
-            read -e -p "Folder Output: " -i "Psd" DIRECTORY
+            read -e -p "Folder output: " -i "psd" DIRECTORY
             echo -e ""
             if [ -z "$DIRECTORY" ]; then
                 echo -e "\033[1;91m[FAILED]\033[0m Folder output is empty."
@@ -1573,7 +1625,7 @@ do
             finish
             break
         ;;
-        "Webp")
+        "webp")
             echo -e "Export to: \033[1;36mWEBP\033[0m"
             echo -e ""
             echo -e "DPI:"
@@ -1598,7 +1650,7 @@ do
                 exit
             fi
             echo -e ""
-            read -e -p "Folder Output: " -i "Webp" DIRECTORY
+            read -e -p "Folder output: " -i "webp" DIRECTORY
             echo -e ""
             if [ -z "$DIRECTORY" ]; then
                 echo -e "\033[1;91m[FAILED]\033[0m Folder output is empty."
@@ -1618,7 +1670,7 @@ do
             finish
             break
         ;;
-        "Cancel")
+        "cancel")
             clear
             echo -e "\033[1;33mEXIT!.\033[0m"
             exit;
