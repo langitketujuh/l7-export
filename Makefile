@@ -15,3 +15,4 @@ uninstall:
 	@rm -rf $(DESTDIR)$(PREFIX)/share/color/icc/profiles/colord/sRGB.icc
 	@rm -rf $(DESTDIR)$(PREFIX)/share/color/icc/profiles/ghostscript/default_rgb.icc
 	@rm -rf $(DESTDIR)$(PREFIX)/share/color/icc/profiles/krita/scRGB.icm
+	@rm -rf $(DESTDIR)$(PREFIX)/share/color/icc/profiles/scribus/sRGB_icc22.*
